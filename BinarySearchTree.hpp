@@ -18,6 +18,7 @@
 #include <cassert>  //assert
 #include <iostream> //ostream
 #include <functional> //less
+#include <algorithm> //max
 
 // You may add aditional libraries here if needed. You may use any
 // part of the STL except for containers.
@@ -363,7 +364,7 @@ private:
     return 0;
     }
     else {
-      return 1 + max(size_impl(node->left), size_impl(node->right));
+      return 1 + std::max(height_impl(node->left), height_impl(node->right));
     }
   }
 
@@ -438,11 +439,11 @@ private:
     if (!node){
       return new Node{item, nullptr, nullptr};
     }
-    if (less(node->datum, item)){
-      node->left = insert_impl(node->right, item, less);
-    }
     if (less(item, node->datum)){
-      node->right = insert_impl(node->left, item, less);
+      node->left = insert_impl(node->left, item, less);
+    }
+    if (less(node->datum, item)){
+      node->right = insert_impl(node->right, item, less);
     }
 
     return node;
@@ -490,12 +491,25 @@ private:
   // NOTE:    This function must be tree recursive.
   static bool check_sorting_invariant_impl(const Node *node, Compare less) {
     if (!node) {
-      return nullptr;
+      return true;
     }
-    
-    if(node->right){
-      if (!less(node->)
+    if (node->right) {
+      if (less(node->right->datum, node->datum)) {
+        return false;
+      }
+      if (!check_sorting_invariant_impl(node->right, less)) {
+        return false;
+      }
     }
+    if (node->left) {
+      if (!less(node->left->datum, node->datum)) {
+        return false;
+      }
+      if (!check_sorting_invariant_impl(node->left, less)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // EFFECTS : Traverses the tree rooted at 'node' using an in-order traversal,
@@ -513,7 +527,7 @@ private:
     
     traverse_inorder_impl(node->left, os);
     os << node->datum << " ";
-    traverse_inorder_imp1(node->right, os);
+    traverse_inorder_impl(node->right, os);
 
   }
   // EFFECTS : Traverses the tree rooted at 'node' using a pre-order traversal,
@@ -527,7 +541,7 @@ private:
   static void traverse_preorder_impl(const Node *node, std::ostream &os) {
     if (!node) {
       return;
-    };
+    }
     else if(node){
       os << node->datum << " ";
       traverse_preorder_impl(node->left, os);
@@ -547,7 +561,24 @@ private:
   //       'less' parameter). Based on the result, you gain some information
   //       about where the element you're looking for could be.
   static Node * min_greater_than_impl(Node *node, const T &val, Compare less) {
-    assert(false);
+    if (!node){
+      return nullptr;
+    }
+
+    if(less(val, node->datum)){
+      if (min_greater_than_impl(node->left, val, less)){
+        return min_greater_than_impl(node->left, val, less);
+      }
+
+      else{
+        return node;
+      }
+    }
+
+    else{
+      return min_greater_than_impl(node->right, val, less);
+    }
+
   }
 
 
