@@ -14,7 +14,9 @@ TEST(bst_public_test) {
     tree2.insert(100);
     ASSERT_FALSE(tree2.find(100) == tree.end());
     ASSERT_TRUE(tree.find(100) == tree.end());
-
+  tree.insert(200);
+    ASSERT_FALSE(tree.find(200) == tree.end());
+    ASSERT_TRUE(tree2.find(200) == tree.end());
   tree.insert(5);
 BinarySearchTree<int> tree3(tree);
 BinarySearchTree<int> tree5 = tree;
@@ -53,5 +55,4 @@ BinarySearchTree<int> tree5 = tree;
   cout << oss_inorder.str() << endl << endl;
   ASSERT_TRUE(oss_inorder.str() == "3 5 7 ");
 }
-
 TEST_MAIN()
